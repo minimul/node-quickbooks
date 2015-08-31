@@ -4,19 +4,22 @@ var http       = require('http'),
     qs         = require('querystring'),
     util       = require('util'),
     express    = require('express'),
+    bodyParser = require('body-parser'),
     app        = express(),
+    cookieSession = require('cookie-session'),
+    cookieParser = require('cookie-parser'),
     QuickBooks = require('../index')
 
 
 // Generic Express config
 app.set('port', port)
 app.set('views', 'views')
-app.use(express.bodyParser())
-app.use(express.cookieParser('brad'))
-app.use(express.session({secret: 'smith'}));
-app.use(app.router)
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(cookieParser('minimul'))
+app.use(cookieSession({ name: 'session', keys: ['key1'] }));
 
-http.createServer(app).listen(app.get('port'), function() {
+app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'))
 })
 
@@ -24,8 +27,8 @@ http.createServer(app).listen(app.get('port'), function() {
 
 // INSERT YOUR CONSUMER_KEY AND CONSUMER_SECRET HERE
 
-var consumerKey    = '',
-    consumerSecret = ''
+var consumerKey    = process.env.MINIMULCASTS_CONSUMER_KEY,
+    consumerSecret = process.env.MINIMULCASTS_CONSUMER_SECRET
 
 app.get('/start', function(req, res) {
   res.render('intuit.ejs', {locals: {port:port, appCenter: QuickBooks.APP_CENTER_BASE}})
