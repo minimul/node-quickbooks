@@ -34,6 +34,14 @@ app.get('/start', function(req, res) {
   res.render('intuit.ejs', {locals: {port:port, appCenter: QuickBooks.APP_CENTER_BASE}})
 })
 
+app.get('/customer/:id', function (req, res) {
+  var qbo = getQbo(req.session.qbo);
+  qbo.getCustomer(req.params.id, function(err, customer) {
+    console.log(customer);
+    res.render('customer.ejs', { locals: { customer: customer }});
+  })
+});
+
 app.get('/requestToken', function(req, res) {
   var postBody = {
     url: QuickBooks.REQUEST_TOKEN_URL,
@@ -69,13 +77,13 @@ app.get('/callback', function(req, res) {
     console.log(postBody.oauth.realmId)
 
     // save the access token somewhere on behalf of the logged in user
-    qbo = new QuickBooks(consumerKey,
-                         consumerSecret,
-                         accessToken.oauth_token,
-                         accessToken.oauth_token_secret,
-                         postBody.oauth.realmId,
-                         true, // use the Sandbox
-                         true); // turn debugging on
+    req.session.qbo = {
+      token: accessToken.oauth_token,
+      secret: accessToken.oauth_token_secret,
+      companyid: postBody.oauth.realmId
+    };
+
+    qbo = getQbo(res.session.qbo);
 
     // test out account access
     qbo.findAccounts(function(_, accounts) {
@@ -83,7 +91,18 @@ app.get('/callback', function(req, res) {
         console.log(account.Name)
       })
     })
+    res.send('<!DOCTYPE html><html lang="en"><head></head><body><script>window.opener.location.reload(); window.close();</script></body></html>')
+    })
   })
-  res.send('<!DOCTYPE html><html lang="en"><head></head><body><script>window.opener.location.reload(); window.close();</script></body></html>')
-})
+
+var getQbo = function (args) {
+  
+  return new QuickBooks(consumerKey,
+                       consumerSecret,
+                       args.token,
+                       args.secret,
+                       args.companyid,
+                       true, // use the Sandbox
+                       true); // turn debugging on
+};
 
