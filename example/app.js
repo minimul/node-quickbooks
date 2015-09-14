@@ -25,8 +25,8 @@ app.listen(app.get('port'), function() {
 
 // INSERT YOUR CONSUMER_KEY AND CONSUMER_SECRET HERE
 
-var consumerKey    = '',
-    consumerSecret = ''
+var consumerKey    = process.env.MINIMULCASTS_CONSUMER_KEY,
+    consumerSecret = process.env.MINIMULCASTS_CONSUMER_SECRET
 
 app.get('/',function(req,res){
   res.redirect('/start');
@@ -77,12 +77,12 @@ app.get('/callback', function(req, res) {
                          accessToken.oauth_token_secret,
                          postBody.oauth.realmId,
                          true, // use the Sandbox
-                         true); // turn debugging on
+                         false); // turn debugging on
 
     // test out account access
     qbo.findAccounts(function(_, accounts) {
       accounts.QueryResponse.Account.forEach(function(account) {
-        console.log(account.Name)
+        //console.log(account.Name)
       })
     })
   })
