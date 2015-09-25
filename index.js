@@ -1799,6 +1799,8 @@ module.delete = function(context, entityName, idOrEntity, callback) {
   }
 }
 
+QuickBooks.prototype._delete = module.delete
+
 // **********************  Query Api **********************
 module.query = function(context, entity, criteria, callback) {
   var url = '/query?query@@select * from ' + entity
